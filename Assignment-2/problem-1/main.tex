@@ -1,0 +1,140 @@
+\documentclass[12pt]{article}
+
+% Packages for mathematics
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{txfonts}
+\usepackage{stfloats}
+\usepackage{cite}
+\usepackage{cases}
+\usepackage{mathtools}
+\usepackage{caption}
+\usepackage{enumerate}	
+\usepackage{enumitem}
+
+\newcommand{\solution}{\noindent \textbf{\underline{Solution}: }}
+\newcommand*{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand*{\n}[1]{\left\lvert #1 \right\rvert}
+\renewcommand{\theenumi}{\alph{enumi}}
+
+% Page layout
+\usepackage[a4paper, margin=1in]{geometry}
+
+% Title
+\title{Assignment-1}
+\author{Pradeep Mundlik (AI21BTECH11022)}
+% \date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{Problem 1: Value Iteration}
+
+\begin{enumerate}
+    \item \solution
+    To prove that the Bellman optimality operator is a contraction under the max-norm, 
+    we need to show that it satisfies the Lipschitz condition with a Lipschitz coefficient $l$ less than 1. 
+
+    $L: \vartheta \to \vartheta$ is contraction mapping if $ \forall u, v \in \vartheta$
+    \begin{equation*}
+        \left\lVert L(v) - L(u)\right\rVert < l \left\lVert v-u\right\rVert
+    \end{equation*}
+
+    Let's start by defining the Bellman optimality operator. Given a state s, it is defined as:
+    \begin{align*}
+        L[V](s) = \max_{a \in A} \left\{ \sum_{s' \in S} P(s' | s, a) \left( R(s, a, s') + \gamma V(s') \right) \right\}
+    \end{align*}
+
+    Now, We need to prove that there exists a $\gamma \in (0,1]$ such that for any two value funtions
+    $V_1$ and $V_2$:
+    \begin{align*}
+        \left\lVert L[V_1](s) - L[V_2](s)\right\rVert _\infty \leq l \left\lVert V_1 - V_2 \right\rVert _\infty
+    \end{align*}
+    where, $ \left\lVert . \right\rVert _\infty $ represents the max-norm, which is the maximum absolute value of the elements of a vector.
+
+    \begin{align*}
+        &L[V_1](s) = \max_{a \in A} \left\{ \sum_{s' \in S} P(s' | s, a) \left( R(s, a, s') + \gamma V_1(s') \right) \right\} \\
+        &L[V_2](s) = \max_{a \in A} \left\{ \sum_{s' \in S} P(s' | s, a) \left( R(s, a, s') + \gamma V_2(s') \right) \right\} 
+    \end{align*}
+    \begin{align*}
+        &\left\lVert L[V_1] - L[V_2]\right\rVert _\infty = \\
+        &= \left\lVert \max_{a \in A} \left\{ \sum_{s' \in S} P(s' | s, a) \left( R(s, a, s') + \gamma V_1(s') \right) \right\} - \max_{a \in A} \left\{ \sum_{s' \in S} P(s' | s, a) \left( R(s, a, s') + \gamma V_2(s') \right) \right\} \right\rVert _\infty\\
+        &\leq \max_{a \in A} \left\lVert \sum_{s' \in S} P(s' | s, a) \left( R(s, a, s') + \gamma V_1(s') \right)- \sum_{s' \in S} P(s' | s, a) \left( R(s, a, s') + \gamma V_2(s') \right) \right\rVert \\
+        &\leq  \max_{a \in A}  \left\lVert \sum_{s' \in S} P(s' | s, a) \left( \gamma \left(V_1(s') - V_2(s') \right) \right) \right\rVert \\
+        &\leq \gamma \max_{a \in A}  \left\lVert \sum_{s' \in S} P(s' | s, a) \left(V_1(s') - V_2(s') \right) \right\rVert  \\
+        % &\leq \gamma \max_{a \in A, s \in S}  \sum_{s' \in S} P(s' | s, a) \left(V_1(s') - V_2(s') \right) \\
+        % &\leq \gamma \left\lVert V_1(s') - V_2(s') \right\rVert \max_{a \in A, s \in S}  \sum_{s' \in S} P(s' | s, a) \\
+        % &\leq \gamma \left\lVert V_1(s') - V_2(s') \right\rVert
+        &\leq \gamma \max_{a \in A} \left\lVert \sum_{s' \in S} P(s' | s, a) \right\rVert \left\lVert V_1 - V_2 \right\rVert  \dots \left( \text{Cauchy Schewartz Inequality}\right) \\
+        &\leq \gamma \left\lVert V_1 - V_2 \right\rVert \dots { \left( \left\lVert \max_{a \in A} \sum_{s' \in S} P(s' | s, a) \right\rVert \leq 1 \right)}
+    \end{align*}
+
+    
+    This proves that the Bellman optimality operator is a $\gamma$-contraction under the max-norm.
+
+    \item \solution
+    Let $V_k$ represent the estimated value function after $k$ iterations, and let $V$ represent the true value function for the policy $\pi$. We can define the error at each state $s$ as 
+    $\n{V_k(s) - V(s)}$. \\
+    Update Equation: $$V_{k+1}(s) = \sum_{a} \pi(a|s) \sum_{s'} p(s'|s, a) [r + \gamma V_k(s')]$$ 
+    Bellman Expectation Equation: $$V(s) = \sum_{a} \pi(a|s) \sum_{s'} p(s'|s, a) [r + \gamma V(s')]$$ 
+
+    \begin{align*}
+        \n{V_{k+1}(s) - V(s)} &= \n{\sum_{a} \pi(a|s) \sum_{s'} p(s'|s, a) [r + \gamma V_k(s')] - \sum_{a} \pi(a|s) \sum_{s'} p(s'|s, a) [r + \gamma V(s')]} \\
+        &= \n{\sum_{a} \pi(a|s) \sum_{s'} p(s'|s, a) \gamma (V_k(s')-V(s'))} \\
+    \end{align*}
+    Take max norm,
+    \begin{align*}
+        \norm{V_{k+1} - V} &= \gamma \max_s \n{\sum_{a} \pi(a|s) \sum_{s'} p(s'|s, a) (V_k(s')-V(s'))} \\
+        \norm{V_{k+1} - V} &\leq \gamma \left(\max_s \n{\sum_{a} \pi(a|s) \sum_{s'} p(s'|s, a)}\right) \norm{V_k-V} \\
+    \end{align*}
+
+    Let, $M= \max_s \n{\sum_{a} \pi(a|s) \sum_{s'} p(s'|s, a)}$
+    \begin{align*}
+        \norm{V_{k+1} - V} &\leq \gamma M \norm{V_k-V} \\
+        \norm{V_{k+1} - V} &\leq (\gamma M)^k \norm{V_0-V} \\
+    \end{align*}
+    Let, $C = \max_s \n{V_0(s)-V(0)} = \norm{V_0-V}$
+    \begin{align*}
+        \norm{V_{k+1} - V} &\leq (\gamma M)^k C \\
+    \end{align*}
+    Here, $\gamma M < 1$, as $k$ increases, the error decreases exponentially. This implies that the error is decreasing geometrically with each iteration. 
+    
+    \item \solution 
+    We can use the triangle inequality to bound the difference between $V_{k+1}$ and $V$ as follows:
+    \begin{align*}
+        \norm{V_{k+1}-V_{*}} \leq \norm{V_{k+1}-V_k} + \norm{V_k-V_{*}}
+    \end{align*}
+    Now, 
+    \begin{align*}
+        V_k(s) &= \max_{a} Q_k(s,a)\\
+        V_*(s) &= \max_{a} Q_*(s,a) \\
+        \norm{V_k(s)-V_{*}(s)} &\leq \gamma \max_a \norm{Q_k(s,a)-V_*(s)} 
+    \end{align*}
+    The Q-value of taking action $a$ in state $s$ under policy $\pi_k$ is the expected value of the immediate reward 
+    and the discounted value of the future rewards that the agent can achieve by taking action a in state s and then following policy $\pi_k$.
+
+    \begin{align*}
+        Q_k(s, a) &= E[r_k + \gamma V_k(s')] \\
+        Q_*(s, a) &= E[r_* + \gamma V_*(s')] \\
+        \norm{Q_k(s, a) - Q_*(s, a)} &= \norm{E[\gamma (V_k(s')-V_*(s'))]} \\
+        \norm{Q_k(s, a) - Q_*(s, a)} &\leq \gamma \max_s \norm{V_k(s')-V_*(s')} \\
+    \end{align*}
+    from above two inequalities,
+    \begin{align*}
+        \norm{V_{k}(s)-V_{*}(s)} &\leq \gamma^2 \max_{s',a} \norm{V_k(s')-V_*(s')} 
+    \end{align*}
+    Now we have, $ \norm{V_{k+1}(s)-V_{k}(s)} \leq \epsilon $ and $ \norm{V_{k+1}-V_{*}} \leq \norm{V_{k+1}-V_k} + \norm{V_k-V_{*}} $
+    \begin{align*}
+        \norm{V_{k+1}(s)-V_{*}(s)} &\leq \epsilon + \gamma^2 \max_{s',a} \norm{V_k(s')-V_*(s')} \\
+        \norm{V_{k+1}(s)-V_{*}(s)} &\leq \epsilon (1 + \gamma^2 + \gamma^4 + \dots) \\
+        \norm{V_{k+1}(s)-V_{*}(s)} &\leq \epsilon * \frac{1}{1-\gamma^2} \\
+        \norm{V_{k+1}(s)-V_{*}(s)} &\leq \frac{\epsilon}{1-\gamma^2} \\
+    \end{align*}
+    This bound shows how far the estimate $V_{k+1}$ is from the optimal value function $V_*$.
+\end{enumerate}
+
+\end{document}

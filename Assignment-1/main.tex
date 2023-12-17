@@ -1,0 +1,233 @@
+\documentclass[12pt]{article}
+
+% Packages for mathematics
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{txfonts}
+\usepackage{stfloats}
+\usepackage{cite}
+\usepackage{cases}
+\usepackage{mathtools}
+\usepackage{caption}
+\usepackage{enumerate}	
+\usepackage{enumitem}
+
+\newcommand{\solution}{\noindent \textbf{\underline{Solution}: }}
+\renewcommand{\theenumi}{\alph{enumi}}
+
+% Page layout
+\usepackage[a4paper, margin=1in]{geometry}
+
+% Title
+\title{Assignment-1}
+\author{Pradeep Mundlik (AI21BTECH11022)}
+% \date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{Problem 1: Markov Reward Process}
+
+\begin{enumerate}
+    \item \solution \\ 
+    \textbf{States:}
+    \begin{itemize}
+        \item State 0: No progress towards the target pattern.
+        \item State 1: Rolled '1' so far.
+        \item State 2: Rolled '12' so far.
+        \item State 3: Rolled '123' so far.
+        \item State 4: Pattern '1234' achieved. (Terminal State)
+     \end{itemize}
+    
+    \textbf{Transition probabilities between states:}
+    \begin{itemize}
+        \item From State 0:
+        \begin{itemize}
+           \item Transitions to State 1 with probability $\frac{1}{4}$ (rolling '1').
+           \item Transitions to State 0 with probability $\frac{3}{4}$ (rolling '2', '3', or '4').
+        \end{itemize}
+        
+        \item From States 1, 2, and 3:
+        \begin{itemize}
+           \item Transitions to the next state with probability $\frac{1}{4}$.
+        \end{itemize}
+        
+        \item From State 4:
+        \begin{itemize}
+           \item Remains in State 4 with probability 1 (pattern is already achieved).
+        \end{itemize}
+     \end{itemize}
+
+     \item  \solution \\ 
+    \textbf{Reward Function:} We will use a reward of 0 for the terminal state (State 4), and a reward of 1 for all other states.
+    \begin{align*}
+        R\left(s\right) = 
+        \begin{cases*}
+            0 & s = 4 \\
+            1 & s = 0,1,2,3
+        \end{cases*}
+    \end{align*}
+
+    \textbf{Discount Factor:} Since there's no mention of discounting, we'll assume a discount factor of 1. $ \left(\gamma = 1\right) $ \\
+
+    \textbf{Bellman Equation:} The Bellman equation for each state $s$ can be written as follows:
+    \begin{equation*}
+        V(s) = R(s) + \sum_{s'} P(s' | s) \cdot V(s')
+    \end{equation*}
+    Where $R\left(s\right)$ is reward for $s$, $P(s' | s)$ is transition probability from 
+    state $s$ to $s'$, and $V(s)$ is the expected cumulative reward starting from state $s$. \\
+
+    \textbf{Solving the Bellman Equations:}
+    Let's calculate the expected number of tosses starting from State 0 (V(0)) using the Bellman equation:
+    \begin{align*}
+        V(0) &= 1 + \frac{3}{4} V(0) + \frac{1}{4} V(1) \\
+        V(1) &= 1 + \frac{1}{2} V(0) + \frac{1}{4} V(1) + \frac{1}{4} V(2) \\
+        V(2) &= 1 + \frac{1}{2} V(0) + \frac{1}{4} V(1) + \frac{1}{4} V(3) \\
+        V(3) &= 1 + \frac{1}{2} V(0) + \frac{1}{4} V(1) + \frac{1}{4} V(4) \\
+        V(4) &= 0
+    \end{align*}
+    Solving above system of equations gives us, $V(0) = 64$. \\
+    Expected number of tosses required for the pattern '1234' to appear is 64.
+\end{enumerate}
+
+\section*{Problem 2:  Markov Decision Process}
+
+% % Your second math problem and solution here
+\begin{enumerate}
+    \item \solution \\
+    In an infinite horizon Markov Decision Process (MDP), the discounted sum of rewards is calculated using the following formula: 
+    \begin{equation*}
+        V(s) = E\left[ \left(\sum \gamma^t R(s_t, a_t, s_{t+1})\right) | s_0 = s \right]
+    \end{equation*}
+    Where $\gamma$ is discount factor, $R$ is reward for transition from $s_t$ to $s_{t+1}$ by taking action $a_t$. \\
+    Since the reward function $R(s, a, s0)$ is non-negative and bounded, let's denote its upper bound as $M$ and lower bound as $m$.\\
+    Lower Bound: \\
+    \begin{align*}
+        V_{Lower} &= E\left[ \left(\sum \gamma^t m\right) | s_0 = s \right] 
+         = \frac{m}{1-\gamma}
+    \end{align*}
+
+    Upper Bound: \\
+    \begin{align*}
+        V_{Upper} = E\left[ \left(\sum \gamma^t M\right) | s_0 = s \right] 
+        = \frac{M}{1-\gamma}
+    \end{align*}
+
+    \item \solution \\
+    We have two infinite horizon MDPs: $M = < S, A, P, R, \gamma >$ and $\hat{M} = < S, A, P, \hat{R}, \gamma >$, 
+    with reward functions $R$ and $\hat{R}$, respectively. The relationship between these reward functions is given as:
+    \begin{equation*}
+        R(s, a, s') - \hat{R}(s, a, s') = \epsilon
+    \end{equation*}
+
+    The value funtion $V_n ^\pi(s)$ for $M$ can be defined as:
+    \begin{equation*}
+        V_n ^\pi(s) = E\left[ \left(\sum \gamma^t R(s_t, a_t, s_{t+1})\right) | s_0 = s \right]
+    \end{equation*}
+    The value funtion $\hat{V_n} ^\pi(s)$ for $M$ can be defined as:
+    \begin{equation*}
+        \hat{V_n} ^\pi(s) = E\left[ \left(\sum \gamma^t \hat{R}(s_t, a_t, s_{t+1})\right) | s_0 = s \right]
+    \end{equation*}
+
+    Now, we can factor out $\epsilon$, \\
+    \begin{align*}
+        V_n ^\pi(s) &= E\left[ \left(\sum \gamma^t R(s_t, a_t, s_{t+1})\right) | s_0 = s \right] \\
+        V_n ^\pi(s) &= E\left[ \left(\sum \gamma^t (\hat{R}(s_t, a_t, s_{t+1}) + \epsilon)\right) | s_0 = s \right] \\
+        V_n ^\pi(s) &= E\left[ \left(\sum \gamma^t \hat{R}(s_t, a_t, s_{t+1})\right) | s_0 = s \right] + \sum \gamma^t \epsilon \\
+        V_n ^\pi(s) &= \hat{V_n} ^\pi(s) + \frac{\epsilon}{1 - \gamma}
+    \end{align*}
+
+    This expression shows that the difference between the value functions $V_n ^\pi(s)$ and $\hat{V_n} ^\pi(s)$ is proportional to the constant $\epsilon$ and inversely proportional to $ (1 - \gamma)$, the discount factor.
+
+    \item \solution \\
+    From result in above question, we have 
+    \begin{align*}
+        \Delta V = V_n ^\pi(s) - \hat{V_n} ^\pi(s) = \frac{\epsilon}{1 - \gamma}
+    \end{align*}
+    Here we can see that $\epsilon$ and $\gamma$ are constants. Therefore, $\Delta V$ is also constant.
+
+    Now consider, $\pi*$ is optimal policy for $M$. 
+    \begin{equation*}
+        \implies V_n ^{\pi*}(s) \geq V_n ^\pi(s) \text{  for all $s$ and policies}
+    \end{equation*}
+    Adding $\Delta V$ in above inequality, 
+    \begin{align*}
+        V_n ^{\pi*}(s) + \Delta V &\geq V_n ^\pi(s) + \Delta V \\
+        \hat{V_n} ^{\pi*}(s) &\geq \hat{V_n} ^\pi(s)
+    \end{align*}
+    Above inequality holds for all $s$ and policies, therefore $\pi*$ is optimal policy for $\hat{M}$ as well.
+
+    So, we can conclude that $M$ and $\hat{M}$ have same optimal policies (for constant $\epsilon$).
+
+    \item \solution \\
+    If the MDP $M$ is allowed to have negative but bounded rewards, the same derivation can still be applied, and the expression relating the value functions $V^\pi(s)$ and $\hat{V}^\pi(s)$ remains valid. The constant $\epsilon$ added to the reward function in $\hat{M}$ still plays the same role in the analysis.
+    The key point is that the $\epsilon$ modification to the reward function is independent of whether the original rewards are non-negative or include negative values, as long as they are bounded. The presence of negative rewards can make the optimization problem more challenging, but the 
+    relationship between $V^\pi(s)$ and $\hat{V}^\pi(s)$ as derived in sub-question (b) remains applicable. \\
+    So, it is not always necessary, and the analysis can be extended to MDPs with negative but bounded rewards.
+    
+    \item \solution \\
+    Let's consider the case of finite horizon MDPs with length H and from question (b), we have
+    \begin{align*}
+        V_n ^\pi(s) &= E\left[ \left(\sum_{t=0} ^{t=H-1} \gamma^t R(s_t, a_t, s_{t+1})\right) | s_0 = s \right] \\
+        \hat{V}_n ^\pi(s) &= E\left[ \left(\sum_{t=0} ^{t=H-1} \gamma^t \hat{R}(s_t, a_t, s_{t+1})\right) | s_0 = s \right] \\
+        \hat{V}_n ^\pi(s) &= E\left[ \left(\sum_{t=0} ^{t=H-1} \gamma^t (\hat{R}(s_t, a_t, s_{t+1}) - \epsilon)\right) | s_0 = s \right] \\
+        \hat{V}_n ^\pi(s) &= E\left[ \left(\sum_{t=0} ^{t=H-1} \gamma^t R(s_t, a_t, s_{t+1})\right) | s_0 = s \right] - E\left[\sum_{t=0} ^{t=H-1} \gamma^t * \epsilon | s_0 = s\right] \\
+        \hat{V}_n ^\pi(s) &= V_n ^\pi(s) - E\left[\sum_{t=0} ^{t=H-1} \gamma^t * \epsilon | s_0 = s\right] \\
+        \Delta V_n ^\pi(s) &= E\left[\sum_{t=0} ^{t=H-1} \gamma^t * \epsilon | s_0 = s\right] \\
+        \Delta V_n ^\pi(s) &= \epsilon * \left(\frac{1 - \gamma ^ {H}}{1 - \gamma} \right) 
+    \end{align*}
+
+    \item \solution \\
+    In indefinite MDPs or stochastic shortest path MDPs where the length of the episode 
+    (horizon length H) can vary, the analogous result of sub-question (b) may not hold in the same 
+    straightforward manner as in the finite or infinite horizon cases.
+    In these MDPs, the length of the episode (H) is not fixed but rather a random variable. 
+    The duration of an episode can vary based on the stochastic nature of the environment or problem.
+    The episodes can have different lengths depending on when a terminal state is encountered.
+
+    \item \solution \\
+    Bellman equation of optimal value funtion for $M$ is,
+    \begin{align*}
+        V_*(s) &= \max_a Q_*(s,a) \\
+        V_*(s) &= \max_a \left[ \sum_{s'} P_{ss'}^a \left(R^a_{ss'} + \gamma V_*(s')\right) \right]
+    \end{align*}
+    
+    for $\hat{M}$ is,
+    \begin{align*}
+        \hat{V}_*(s) &= \max_a \left[ \sum_{s'} P_{ss'}^a \left(\hat{R}^a_{ss'} + \gamma \hat{V}_*(s')\right) \right]
+    \end{align*}
+
+    Let's take the absolute difference between these two equations,
+    \begin{align*}
+        \left\lvert V_*(s) - \hat{V}_*(s) \right\rvert  &= \left\lvert \max_a \left[ \sum_{s'} P_{ss'}^a \left(R^a_{ss'} + \gamma V_*(s')\right) \right] - \max_a \left[ \sum_{s'} P_{ss'}^a \left(\hat{R}^a_{ss'} + \gamma \hat{V}_*(s')\right) \right] \right\rvert \\
+        \left\lvert V_*(s) - \hat{V}_*(s) \right\rvert  &= \left\lvert \max_a \left[ \sum_{s'} P_{ss'}^a \left(\left(R^a_{ss'} - \hat{R}^a_{ss'}\right) + \gamma \left(V_*(s') - \hat{V}_*(s')\right)\right) \right] \right\rvert \\ 
+        \left\lvert V_*(s) - \hat{V}_*(s) \right\rvert  &\leq \max_a \sum_{s'} P_{ss'}^a \left[ \left\lvert R^a_{ss'} - \hat{R}^a_{ss'} \right\rvert + \gamma \left\lvert V_*(s') - \hat{V}_*(s') \right\rvert \right]  \\
+    \end{align*}
+    Now, we can use fact that optimal functions are bounded, let $U$ is upper bound fot both $V_*(s)$ and $\hat{V}_*(s)$ for all states. \\
+    Also, we given that $R(s, a, s_0) - \hat{R}(s, a, s_0) \leq \epsilon$,
+    \begin{align*}
+        \left\lvert V_*(s) - \hat{V}_*(s) \right\rvert  &\leq \max_a \sum_{s'} P_{ss'}^a \left( \epsilon + \gamma * 2*U \right)  \\
+        \left\lvert V_*(s) - \hat{V}_*(s) \right\rvert  &\leq \max_a \sum_{s'} P_{ss'}^a \left( \epsilon + 2\gamma U \right)  \\
+    \end{align*}
+    The difference between the optimal value functions depends on $\epsilon$, the bound $U$, the discount factor $\gamma$, and the transition probabilities.
+    Policies are derived from the value functions, so optimal policies for the MDPs will depend on how large or small above factors are.
+
+    \item \solution \\
+    As, we are given that $0 < \kappa < 1$, \\ So, $ \kappa \gamma < \gamma $, 
+
+    In an MDP, discount factor$(\gamma)$ represents importance of future rewards vs immediate rewards. 
+    A smaller $\gamma$ places more emphasis on immediate rewards, while a larger $\gamma$ places more emphasis on long-term rewards. 
+    Therefore, changing the discount factor from $\gamma$ to $\kappa \gamma $ effectively changes the balance between immediate and future rewards.
+    This will lead to less emphasis on future rewards and more emphasis on immediate rewards.
+    The agent will become more "impatient" and may prioritize actions that provide immediate rewards, even if they result in lower long-term cumulative rewards.
+    The optimal policy may change in favor of actions that have better immediate rewards, as the agent discounts the future more heavily. \\
+    So, scaling the discount factor in an MDP does alter the optimal policy because it changes the trade-off between immediate and future rewards.
+\end{enumerate}
+
+% Add more sections for additional problems as needed
+\end{document}
+
